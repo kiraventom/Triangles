@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
 using System.Data;
+using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Drawing.Drawing2D;
 using Triangles.Model.Shapes;
 
 namespace Triangles
@@ -18,11 +14,11 @@ namespace Triangles
         {
             InitializeComponent();
             pen = new Pen(Color.Black);
-            brush = new SolidBrush(Color.Black);
             BaseColor = Color.White;
+            brush = new SolidBrush(BaseColor);
         }
 
-        private IEnumerable<Triangle> OriginalTriangles;
+        private IOrderedEnumerable<Triangle> OriginalTriangles;
         private readonly Pen pen;
         private readonly SolidBrush brush;
         private Color baseColor;
@@ -38,11 +34,11 @@ namespace Triangles
 
         public void DrawTriangles(IEnumerable<Triangle> actualTriangles)
         {
-            OriginalTriangles = actualTriangles;
+            OriginalTriangles = actualTriangles.OrderByDescending(tr => tr.Area);
             this.Invalidate();
         }
 
-        private static IEnumerable<Triangle> ScaleTriangles(IEnumerable<Triangle> originalTriangles, Size size)
+        private static IEnumerable<Triangle> ScaleTriangles(IOrderedEnumerable<Triangle> originalTriangles, Size size)
         {
             var points = originalTriangles.SelectMany(tr => tr.Points);
             var maxX = points.Max(pt => pt.X);

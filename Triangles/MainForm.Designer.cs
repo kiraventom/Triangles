@@ -61,11 +61,11 @@
             // StatusL
             // 
             this.StatusL.AutoSize = true;
-            this.StatusL.Location = new System.Drawing.Point(41, 12);
+            this.StatusL.Location = new System.Drawing.Point(9, 9);
             this.StatusL.Name = "StatusL";
-            this.StatusL.Size = new System.Drawing.Size(28, 17);
+            this.StatusL.Size = new System.Drawing.Size(49, 17);
             this.StatusL.TabIndex = 2;
-            this.StatusL.Text = "OK";
+            this.StatusL.Text = "Ready";
             // 
             // ColorBt
             // 

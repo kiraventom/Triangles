@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -30,7 +31,13 @@ namespace Triangles
             }
 
             var triangles = IO.GetTrianglesFromFile(filename);
+            if (Intersection.IsThereIntersection(triangles.SelectMany(tr => tr.Sides)))
+            {
+                StatusL.Text = "Error!";
+                return;
+            }
             Hierarchy.DefineHierarchy(triangles);
+            StatusL.Text = "Количество оттенков: " + (triangles.Max(tr => tr.Level) + 2);
             this.MainTV.DrawTriangles(triangles);
         }
 
