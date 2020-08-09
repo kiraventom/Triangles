@@ -35,7 +35,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Name = "TriangleViewer";
-            this.SizeChanged += new System.EventHandler(this.TriangleViewer_SizeChanged);
+            this.Load += new System.EventHandler(this.TriangleViewer_Load);
             this.ResumeLayout(false);
 
         }

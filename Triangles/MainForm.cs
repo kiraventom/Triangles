@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Triangles.Model;
+using Triangles.Model.Shapes;
 
 namespace Triangles
 {
@@ -31,23 +32,25 @@ namespace Triangles
             }
 
             var triangles = IO.GetTrianglesFromFile(filename);
-            if (Intersection.IsThereIntersection(triangles.SelectMany(tr => tr.Sides)))
+            bool isThereIntersection = Intersection.IsThereIntersection(triangles);
+            if (isThereIntersection)
             {
                 StatusL.Text = "Error!";
-                return;
             }
-            Hierarchy.DefineHierarchy(triangles);
-            StatusL.Text = "Количество оттенков: " + (triangles.Max(tr => tr.Level) + 2);
-            this.MainTV.DrawTriangles(triangles);
+            else
+            {
+                Hierarchy.DefineHierarchy(triangles);
+                int colorsCounts = triangles.Max(tr => tr.Level) + 1 + 1; // + 1 for background color and + 1 because level is zero-based
+                StatusL.Text = "Количество оттенков: " + colorsCounts;
+            }
+
+            this.MainTV.AddTriangles(triangles, !isThereIntersection);
         }
 
         private void ColorBt_Click(object sender, EventArgs e)
         {
-            using (var cd = new ColorDialog())
+            using (var cd = new ColorDialog() { Color = ColorBt.BackColor, AnyColor = true, FullOpen = true })
             {
-                cd.Color = ColorBt.BackColor;
-                cd.AnyColor = true;
-                cd.FullOpen = true;
                 if (cd.ShowDialog() != DialogResult.OK)
                 {
                     return;
@@ -59,6 +62,26 @@ namespace Triangles
         private void ColorBt_BackColorChanged(object sender, EventArgs e)
         {
             MainTV.BaseColor = (sender as Control).BackColor;
+        }
+
+        private void GenerateBt_Click(object sender, EventArgs e)
+        {
+            int amount = (int)TrianglesAmountNUD.Value;
+
+            var triangles = Generator.GenerateNonIntersecting(amount);
+            bool isThereIntersection = Intersection.IsThereIntersection(triangles);
+            if (isThereIntersection)
+            {
+                StatusL.Text = "Error!";
+            }
+            else
+            {
+                Hierarchy.DefineHierarchy(triangles);
+                int colorsCounts = triangles.Max(tr => tr.Level) + 1 + 1; // + 1 for background color and + 1 because level is zero-based
+                StatusL.Text = "Количество оттенков: " + colorsCounts;
+            }
+            
+            this.MainTV.AddTriangles(triangles, !isThereIntersection);
         }
     }
 }

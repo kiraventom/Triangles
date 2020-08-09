@@ -33,7 +33,7 @@ namespace Triangles.Model
                     {
                         points.Add(new PointF(coords[j], coords[j + 1]));
                     }
-                    triangles.Add(new Triangle(points[0], points[1], points[2], null));
+                    triangles.Add(new Triangle(points[0], points[1], points[2]));
                 }
             }
 
