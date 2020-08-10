@@ -1,22 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using Triangles.Model;
-using Triangles.Model.Shapes;
-
-namespace Triangles
+﻿namespace Triangles
 {
+    using System;
+    using System.Drawing;
+    using System.Linq;
+    using System.Windows.Forms;
+    using Triangles.Model;
+
     public partial class MainForm : Form
     {
         public MainForm()
         {
-            InitializeComponent();
-            ColorBt.BackColor = Color.LightGreen;
+            this.InitializeComponent();
+            // устанавливаем цвет по умолчанию, светло-зелёный выбран для примера
+            this.ColorBt.BackColor = Color.LightGreen;
         }
 
         private void AddTrianglesBt_Click(object sender, EventArgs e)
@@ -28,20 +24,26 @@ namespace Triangles
                 {
                     return;
                 }
+
                 filename = ofd.FileName;
             }
 
-            var triangles = IO.GetTrianglesFromFile(filename);
+            var triangles = File.GetTrianglesFromFile(filename);
+            if (triangles is null) // некорректный файл
+            {
+                return;
+            }
+
             bool isThereIntersection = Intersection.IsThereIntersection(triangles);
             if (isThereIntersection)
             {
-                StatusL.Text = "Error!";
+               this.StatusL.Text = "Ошибка!";
             }
             else
             {
                 Hierarchy.DefineHierarchy(triangles);
-                int colorsCounts = triangles.Max(tr => tr.Level) + 1 + 1; // + 1 for background color and + 1 because level is zero-based
-                StatusL.Text = "Количество оттенков: " + colorsCounts;
+                int colorsCount = triangles.Max(tr => tr.Level) + 1 + 1; // + 1 за фон и + 1, так как уровень отсчитывается с нуля
+                this.StatusL.Text = "Количество оттенков: " + colorsCount;
             }
 
             this.MainTV.AddTriangles(triangles, !isThereIntersection);
@@ -49,39 +51,21 @@ namespace Triangles
 
         private void ColorBt_Click(object sender, EventArgs e)
         {
-            using (var cd = new ColorDialog() { Color = ColorBt.BackColor, AnyColor = true, FullOpen = true })
+            using (var cd = new ColorDialog() { Color = this.ColorBt.BackColor, AnyColor = true, FullOpen = true })
             {
                 if (cd.ShowDialog() != DialogResult.OK)
                 {
                     return;
                 }
-                ColorBt.BackColor = cd.Color;
+
+                this.ColorBt.BackColor = cd.Color;
             }
         }
 
         private void ColorBt_BackColorChanged(object sender, EventArgs e)
         {
-            MainTV.BaseColor = (sender as Control).BackColor;
-        }
-
-        private void GenerateBt_Click(object sender, EventArgs e)
-        {
-            int amount = (int)TrianglesAmountNUD.Value;
-
-            var triangles = Generator.GenerateNonIntersecting(amount);
-            bool isThereIntersection = Intersection.IsThereIntersection(triangles);
-            if (isThereIntersection)
-            {
-                StatusL.Text = "Error!";
-            }
-            else
-            {
-                Hierarchy.DefineHierarchy(triangles);
-                int colorsCounts = triangles.Max(tr => tr.Level) + 1 + 1; // + 1 for background color and + 1 because level is zero-based
-                StatusL.Text = "Количество оттенков: " + colorsCounts;
-            }
-            
-            this.MainTV.AddTriangles(triangles, !isThereIntersection);
+            // Таким образом цвет фона кнопки передаётся в контрол отрисовки треугольников
+            this.MainTV.BaseColor = (sender as Control).BackColor;
         }
     }
 }

@@ -1,32 +1,37 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Runtime.InteropServices;
-using Triangles.Model.Shapes;
-using Side = System.Tuple<Triangles.Model.Shapes.LineSegment, Triangles.Model.Shapes.Triangle>;
-using Vertex = System.Tuple<System.Drawing.PointF, System.Tuple<Triangles.Model.Shapes.LineSegment, Triangles.Model.Shapes.Triangle>>;
-
-namespace Triangles.Model
+﻿namespace Triangles.Model
 {
+    using System.Collections.Generic;
+    using System.Linq;
+    using Triangles.Model.Shapes;
+    using Side = System.Tuple<Shapes.LineSegment, Shapes.Triangle>;
+    using Vertex = System.Tuple<System.Drawing.PointF, System.Tuple<Shapes.LineSegment, Shapes.Triangle>>;
+
     public static class Intersection
     {
-        // Псевдо Shamos-Hoey алгоритм для треугольников
+        /// <summary>
+        /// Псевдо Shamos-Hoey алгоритм для определения пересечения треугольников. Сложность: O(n^2)
+        /// </summary>
+        /// <param name="triangles">Треугольники</param>
+        /// <returns> <see href="true"/>, если было обнаружено пересечение, иначе <see href="false"/>.</returns>
         public static bool IsThereIntersection(IEnumerable<Triangle> triangles)
         {
-            // собираем все стороны треугольников в пары вида (отрезок:треугольник)
+            // собираем все стороны треугольников в пары вида сторона=(отрезок:треугольник)
             var sides = triangles.SelectMany(tr => tr.Sides.Select(segment => new Side(segment, tr)));
-            // собираем все вершины треугольников в пары вида (точка:сторона)
+
+            // собираем все вершины треугольников в пары вида вершина=(точка:сторона)
             var vertices = sides.SelectMany(side => side.Item1.Points.Select(point => new Vertex(point, side)))
                                 .OrderBy(vertex => vertex.Item1.X);
 
             var currentSides = new List<Side>();
+
             // идём по Х слева направо
             foreach (var vertex in vertices)
             {
                 // берём сторону с текущей точкой;
                 Side currentSide = vertex.Item2;
-                
-                if (vertex.Item1 == currentSide.Item1.LeftPoint) // если точка начальная
+
+                // если точка начальная
+                if (vertex.Item1 == currentSide.Item1.LeftPoint) 
                 {
                     // добавляем новую сторону
                     currentSides.Add(currentSide);
@@ -41,6 +46,7 @@ namespace Triangles.Model
                     {
                         return true;
                     }
+
                     // если пересечения нет, удаляем отрезок и идём дальше
                     currentSides.Remove(currentSide);
                 }
@@ -51,40 +57,34 @@ namespace Triangles.Model
 
         private static bool DoSegmentsIntersect(LineSegment segment1, LineSegment segment2)
         {
-            // Generating line equations of type "Ax + By = C"
-            float A1 = segment1.Point2.Y - segment1.Point1.Y; // A = y2 - y1
-            float B1 = segment1.Point1.X - segment1.Point2.X; // B = x1 - x2
-            float C1 = A1 * segment1.Point1.X + B1 * segment1.Point1.Y; // C = Ax1 + By1
-            float A2 = segment2.Point2.Y - segment2.Point1.Y;
-            float B2 = segment2.Point1.X - segment2.Point2.X;
-            float C2 = A2 * segment2.Point1.X + B2 * segment2.Point1.Y;
+            // Получаем уравнение линии вида "Ax + By = C"
+            double A1 = segment1.Point2.Y - segment1.Point1.Y; // A = y2 - y1
+            double B1 = segment1.Point1.X - segment1.Point2.X; // B = x1 - x2
+            double C1 = (A1 * segment1.Point1.X) + (B1 * segment1.Point1.Y); // C = Ax1 + By1
+            double A2 = segment2.Point2.Y - segment2.Point1.Y;
+            double B2 = segment2.Point1.X - segment2.Point2.X;
+            double C2 = (A2 * segment2.Point1.X) + (B2 * segment2.Point1.Y);
 
-            // now, when we have all of the parts of the equations, 
-            // let's find the point of intersection
-            float det = A1 * B2 - A2 * B1;
-            if (det == 0)
+            // все части уравнения получены, находим точку пересечения
+            double determinator = (A1 * B2) - (A2 * B1);
+            if (determinator == 0)
             {
-                // Lines are parallel
+                // Линии параллельны
                 return false;
             }
-            float X = (B2 * C1 - B1 * C2) / det;
-            float Y = (A1 * C2 - A2 * C1) / det;
 
-            // Finally, let's found out if point belong to both of our lines
-            float line1MinX = segment1.Point1.X < segment1.Point2.X ? segment1.Point1.X : segment1.Point2.X;
-            float line1MaxX = segment1.Point1.X > segment1.Point2.X ? segment1.Point1.X : segment1.Point2.X;
-            float line2MinX = segment2.Point1.X < segment2.Point2.X ? segment2.Point1.X : segment2.Point2.X;
-            float line2MaxX = segment2.Point1.X > segment2.Point2.X ? segment2.Point1.X : segment2.Point2.X;
-            float line1MinY = segment1.Point1.Y < segment1.Point2.Y ? segment1.Point1.Y : segment1.Point2.Y;
-            float line1MaxY = segment1.Point1.Y > segment1.Point2.Y ? segment1.Point1.Y : segment1.Point2.Y;
-            float line2MinY = segment2.Point1.Y < segment2.Point2.Y ? segment2.Point1.Y : segment2.Point2.Y;
-            float line2MaxY = segment2.Point1.Y > segment2.Point2.Y ? segment2.Point1.Y : segment2.Point2.Y;
+            double x = ((B2 * C1) - (B1 * C2)) / determinator;
+            double y = ((A1 * C2) - (A2 * C1)) / determinator;
 
-            bool result =
-                X >= line1MinX && X <= line1MaxX && X >= line2MinX && X <= line2MaxX &&
-                Y >= line1MinY && Y <= line1MaxY && Y >= line2MinY && Y <= line2MaxY;
-
-            return result;
+            // Определяем, принадлежит ли точка к обоим отрезкам
+            return x >= segment1.LeftPoint.X
+                          && x <= segment1.RightPoint.X
+                          && x >= segment2.LeftPoint.X
+                          && x <= segment2.RightPoint.X
+                          && y >= segment1.BottomPoint.Y
+                          && y <= segment1.TopPoint.Y
+                          && y >= segment2.BottomPoint.Y
+                          && y <= segment2.TopPoint.Y;
         }
     }
 }

@@ -17,6 +17,8 @@
             {
                 components.Dispose();
             }
+            this.Pen.Dispose();
+            this.Brush.Dispose();
             base.Dispose(disposing);
         }
 
