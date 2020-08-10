@@ -44,21 +44,11 @@
 
         public LineSegment CA { get; private set; }
 
-        public Triangle Parent
-        {
-            get => parent;
-            set
-            {
-                parent = value;
-                Level = CalculateLevel();
-            }
-        }
+        public Triangle Parent { get; set; }
 
-        public int Level { get; private set; }
+        public int Level => CalculateLevel();
 
         public double Area { get; private set; }
-
-        private Triangle parent;
 
         private IList<Point> points;
 

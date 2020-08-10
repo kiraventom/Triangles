@@ -36,7 +36,9 @@
 
         private bool ShouldFillTriangles { get; set; }
 
-        private IEnumerable<Triangle> Triangles { get; set; }
+        private IEnumerable<Triangle> OriginalTriangles { get; set; }
+
+        private IEnumerable<Triangle> DrawingTriangles { get; set; }
 
         public void AddTriangles(IEnumerable<Triangle> triangles, bool fillTriangles = true)
         {
@@ -47,22 +49,23 @@
 
             this.ShouldFillTriangles = fillTriangles;
 
-            this.Triangles = triangles.OrderByDescending(tr => tr.Area);
-            this.Triangles = ScaleTrianglesToSize(this.Triangles, this.Size);
-            this.Invalidate();
+            // сортируем по возрастанию площади, чтобы бОльшие по размеру треугольники не перекрывали меньшие
+            OriginalTriangles = triangles.OrderByDescending(tr => tr.Area);
+
+            RedrawTriangles();
         }
 
         protected override void OnPaint(PaintEventArgs e) 
         { 
             base.OnPaint(e);
-            if (this.Triangles is null)
+            if (this.OriginalTriangles is null)
             {
                 return;
             }
 
             var g = e.Graphics;
             g.Clear(this.BaseColor);
-            foreach (var triangle in this.Triangles)
+            foreach (var triangle in this.DrawingTriangles)
             {
                 var points = triangle.Points.ToArray();
                 this.Brush.Color = GetTriangleColor(triangle.Level, this.BaseColor);
@@ -91,21 +94,60 @@
             var maxY = points.Max(pt => pt.Y);
 
             // коэффициент пропорции ширины прямоугольника и точки с самым большим отклонением по X
-            var horizontalRatio = (size.Width - Margin) / maxX;
+            var horizontalRatio = (size.Width - Margin) / (double)maxX;
 
             // коэффициент пропорции высоты прямоугольника и точки с самым большим отклонением по Y
-            var verticalRatio = (size.Height - Margin) / maxY;
+            var verticalRatio = (size.Height - Margin) / (double)maxY;
 
             // выбирается меньший коэффициент, чтобы выбрать точку с бОльшим отклонением
             var ratio = horizontalRatio <= verticalRatio ? horizontalRatio : verticalRatio; 
             var scaledTriangles = originalTriangles.Select(tr =>
             {
                 // точка каждого треугольника домножается на коэффициент
-                var newPoints = tr.Points.Select(pt => new Point(pt.X * ratio, pt.Y * ratio)).ToArray();
+                var newPoints = tr.Points.Select(pt => new Point((int)(pt.X * ratio), (int)(pt.Y * ratio))).ToArray();
                 var newTriangle = new Triangle(newPoints[0], newPoints[1], newPoints[2]) { Parent = tr.Parent };
                 return newTriangle;
             });
             return scaledTriangles;
+        }
+
+        private enum Origin { BottomLeft, TopLeft, BottomRight, TopRight };
+
+        private static IEnumerable<Triangle> SetOrigin(IEnumerable<Triangle> originalTriangles, Origin origin, Size planeSize)
+        {
+            IEnumerable<Triangle> rotatedTriangles = originalTriangles; ;
+            switch (origin)
+            {
+                case Origin.BottomLeft:
+                    rotatedTriangles = originalTriangles.Select(tr =>
+                    {
+                        var newPoints = tr.Points.Select(point => new Point(point.X, planeSize.Height - point.Y)).ToArray();
+                        var newTriangle = new Triangle(newPoints[0], newPoints[1], newPoints[2]) { Parent = tr.Parent };
+                        return newTriangle;
+                    });
+                    break;
+                case Origin.TopLeft:
+
+                    break;
+                case Origin.BottomRight:
+                    rotatedTriangles = originalTriangles.Select(tr =>
+                    {
+                        var newPoints = tr.Points.Select(point => new Point(planeSize.Width - point.X, planeSize.Height - point.Y)).ToArray();
+                        var newTriangle = new Triangle(newPoints[0], newPoints[1], newPoints[2]) { Parent = tr.Parent };
+                        return newTriangle;
+                    });
+                    break;
+                case Origin.TopRight:
+                    rotatedTriangles = originalTriangles.Select(tr =>
+                    {
+                        var newPoints = tr.Points.Select(point => new Point(planeSize.Width - point.X, point.Y)).ToArray();
+                        var newTriangle = new Triangle(newPoints[0], newPoints[1], newPoints[2]) { Parent = tr.Parent };
+                        return newTriangle;
+                    });
+                    break;
+            }
+
+            return rotatedTriangles;
         }
 
         private static Color GetTriangleColor(int level, Color baseColor)
@@ -120,6 +162,16 @@
             return color;
         }
 
+        private void RedrawTriangles()
+        {
+            // увеличиваем треугольники соответственно размеру площади для отрисовки
+            DrawingTriangles = ScaleTrianglesToSize(OriginalTriangles, this.Size);
+
+            // устанавливаем начало координат в нижний левый угол
+            DrawingTriangles = SetOrigin(DrawingTriangles, Origin.BottomLeft, this.Size);
+            this.Invalidate();
+        }
+
         private void TriangleViewer_Load(object sender, EventArgs e)
         {
             // чтобы не перерисовывать треугольники каждый момент изменения размера,
@@ -129,13 +181,12 @@
 
         private void ParentForm_ResizeEnd(object sender, EventArgs e)
         {
-            if (this.Triangles is null)
+            if (this.OriginalTriangles is null)
             {
                 return;
             }
 
-            this.Triangles = ScaleTrianglesToSize(this.Triangles, this.Size);
-            this.Invalidate();
+            RedrawTriangles();
         }
     }
 }
