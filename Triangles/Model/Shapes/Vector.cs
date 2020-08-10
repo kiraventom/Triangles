@@ -1,5 +1,6 @@
 ﻿namespace Triangles.Model.Shapes
 {
+    using System;
     using System.Drawing;
 
     public class Vector
@@ -28,6 +29,15 @@
         /// <returns>Псевдоскалярное произведение</returns>
         public static double CrossProduct(Vector vector1, Vector vector2)
         {
+            if (vector1 is null)
+            {
+                throw new ArgumentNullException(nameof(vector1));
+            }
+            if (vector2 is null)
+            {
+                throw new ArgumentNullException(nameof(vector2));
+            }
+
             return (vector1.X * vector2.Y) - (vector1.Y * vector2.X);
         }
     }

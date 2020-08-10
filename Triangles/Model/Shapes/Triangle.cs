@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Drawing;
 
     public class Triangle
@@ -13,6 +14,16 @@
 
         public Triangle(LineSegment ab, LineSegment bc)
         {
+            if (ab is null)
+            {
+                throw new ArgumentNullException(nameof(ab));
+            }
+
+            if (bc is null)
+            {
+                throw new ArgumentNullException(nameof(ab));
+            }
+
             this.Points = Array.AsReadOnly(new[] { ab.Point1, ab.Point2, bc.Point2 });
         }
 

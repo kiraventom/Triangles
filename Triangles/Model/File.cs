@@ -46,13 +46,14 @@
         {
             // Предполагается, что на каждой строке, кроме первой, будет по три пары координат
             const int ExpectedValuesPerLine = 6;
+            const string ErrorCaption = "Ошибка!";
             try
             {
                 CheckFile(filename, ExpectedValuesPerLine);
             }
             catch (Exception ex) when (ex is FileNotFoundException || ex is FormatException)
             {
-                MessageBox.Show(ex.Message, caption: "Ошибка!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, caption: ErrorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 

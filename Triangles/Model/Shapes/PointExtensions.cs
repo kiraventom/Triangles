@@ -1,11 +1,17 @@
 ﻿namespace Triangles.Model.Shapes
 {
+    using System;
     using System.Drawing;
 
     public static class PointExtensions
     {
         public static bool IsInsideTriangle(this Point point, Triangle triangle)
         {
+            if (triangle is null)
+            {
+                throw new ArgumentNullException(nameof(triangle));
+            }
+
             /* Чтобы убедиться, что точка находится точка внутри трегоульника,
              * необходимо, чтобы относительно всех трёх сторон треугольника
              * точка располагается с внутренней стороны.

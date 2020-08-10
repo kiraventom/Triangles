@@ -1,5 +1,6 @@
 ﻿namespace Triangles.Model
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using Triangles.Model.Shapes;
@@ -12,6 +13,11 @@
         /// <param name="triangles">Треугольники</param>
         public static void DefineHierarchy(IEnumerable<Triangle> triangles)
         {
+            if (triangles is null)
+            {
+                throw new ArgumentNullException(nameof(triangles));
+            }
+
             foreach (var triangle in triangles)
             {
                 triangle.Parent = FindParentOf(triangle, triangles);
