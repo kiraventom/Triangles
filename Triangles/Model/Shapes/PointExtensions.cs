@@ -38,7 +38,7 @@
             var cp1 = Vector.CrossProduct(lineVector, vectorToPoint);
             var cp2 = Vector.CrossProduct(lineVector, vectorToVertex);
 
-            return cp1 * cp2 > 0;
+            checked { return cp1 * cp2 > 0; }
         }
     }
 }

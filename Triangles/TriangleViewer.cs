@@ -49,14 +49,15 @@
 
             this.ShouldFillTriangles = fillTriangles;
 
-            // сортируем по возрастанию площади, чтобы бОльшие по размеру треугольники не перекрывали меньшие
+            // сортируем по убыванию площади, чтобы бОльшие по размеру треугольники не перекрывали меньшие
             OriginalTriangles = triangles.OrderByDescending(tr => tr.Area);
 
             RedrawTriangles();
         }
 
-        protected override void OnPaint(PaintEventArgs e) 
-        { 
+#pragma warning disable CA1062
+        protected override void OnPaint(PaintEventArgs e)
+        {
             base.OnPaint(e);
             if (this.OriginalTriangles is null)
             {
@@ -79,6 +80,7 @@
                 g.DrawPolygon(this.Pen, points);
             }
         }
+#pragma warning restore CA1062
 
         /// <summary>
         /// Пропорционально изменяет размеры всех треугольников в перечислении так, чтобы заполнить прямугольник заданного размера.
@@ -100,7 +102,7 @@
             var verticalRatio = (size.Height - Margin) / (double)maxY;
 
             // выбирается меньший коэффициент, чтобы выбрать точку с бОльшим отклонением
-            var ratio = horizontalRatio <= verticalRatio ? horizontalRatio : verticalRatio; 
+            var ratio = horizontalRatio <= verticalRatio ? horizontalRatio : verticalRatio;
             var scaledTriangles = originalTriangles.Select(tr =>
             {
                 // точка каждого треугольника домножается на коэффициент
@@ -154,7 +156,7 @@
         {
             // коэффициент изменения тона цвета треугольника
             // чем меньше коэффициент, тем меньше будет разница между цветами треугольников разных уровней
-            const int Multiplier = 25; 
+            const int Multiplier = 25;
             var r = baseColor.R - (Multiplier * (level + 1));
             var g = baseColor.G - (Multiplier * (level + 1));
             var b = baseColor.B - (Multiplier * (level + 1));

@@ -78,13 +78,13 @@
 
             // Определяем, принадлежит ли точка к обоим отрезкам
             return x >= segment1.LeftPoint.X
-                          && x <= segment1.RightPoint.X
-                          && x >= segment2.LeftPoint.X
-                          && x <= segment2.RightPoint.X
-                          && y >= segment1.BottomPoint.Y
-                          && y <= segment1.TopPoint.Y
-                          && y >= segment2.BottomPoint.Y
-                          && y <= segment2.TopPoint.Y;
+                   && x <= segment1.RightPoint.X
+                   && x >= segment2.LeftPoint.X
+                   && x <= segment2.RightPoint.X
+                   && y >= segment1.BottomPoint.Y
+                   && y <= segment1.TopPoint.Y
+                   && y >= segment2.BottomPoint.Y
+                   && y <= segment2.TopPoint.Y;
         }
     }
 }

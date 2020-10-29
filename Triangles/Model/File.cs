@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Data;
     using System.Drawing;
+    using System.Globalization;
     using System.IO;
     using System.Linq;
     using System.Windows.Forms;
@@ -23,11 +24,11 @@
             var triangles = new List<Triangle>();
             using (var sr = System.IO.File.OpenText(filename))
             {
-                int trianglesCount = int.Parse(sr.ReadLine()); // получаем количество треугольников
+                int trianglesCount = int.Parse(sr.ReadLine(), CultureInfo.InvariantCulture); // получаем количество треугольников
                 for (int i = 0; i < trianglesCount; ++i)
                 {
                     string line = sr.ReadLine();
-                    var coords = line.Split(Separator).Select(numStr => int.Parse(numStr)).ToArray();
+                    var coords = line.Split(Separator).Select(numStr => int.Parse(numStr, CultureInfo.InvariantCulture)).ToArray();
 
                     var points = new List<Point>();
                     for (int j = 0; j < coords.Length; j += 2)
@@ -46,14 +47,13 @@
         {
             // Предполагается, что на каждой строке, кроме первой, будет по три пары координат
             const int ExpectedValuesPerLine = 6;
-            const string ErrorCaption = "Ошибка!";
             try
             {
                 CheckFile(filename, ExpectedValuesPerLine);
             }
             catch (Exception ex) when (ex is FileNotFoundException || ex is FormatException)
             {
-                MessageBox.Show(ex.Message, caption: ErrorCaption, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show(ex.Message, Properties.Resources.Error, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return false;
             }
 

@@ -51,6 +51,8 @@
 
         public static implicit operator double(LineSegment segment) => segment is null ? -1 : segment.Length;
 
+        public double ToDouble() => this.Length;
+
         public Vector ToVector() => new Vector(this.Point2.X - this.Point1.X, this.Point2.Y - this.Point1.Y);
     }
 }

@@ -8,6 +8,7 @@
         /// <summary>
         /// The main entry point for the application.
         /// </summary>
+#pragma warning disable CA2000
         [STAThread]
         static void Main()
         {
@@ -15,5 +16,6 @@
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new MainForm());
         }
+#pragma warning restore CA2000
     }
 }

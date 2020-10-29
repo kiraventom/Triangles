@@ -34,11 +34,10 @@
                 return;
             }
 
-            const string IntersectionMessage = "Ошибка!";
             bool isThereIntersection = Intersection.IsThereIntersection(triangles);
             if (isThereIntersection)
             {
-               this.StatusL.Text = IntersectionMessage;
+                this.StatusL.Text = Properties.Resources.Error;
             }
             else
             {
