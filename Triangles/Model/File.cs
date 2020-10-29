@@ -67,32 +67,30 @@
                 throw new FileNotFoundException($"Файл \"{filename}\" не найден.");
             }
 
-            using (var sr = System.IO.File.OpenText(filename))
+            using var sr = System.IO.File.OpenText(filename);
+            string firstLine = sr.ReadLine();
+            if (!int.TryParse(firstLine, out int count) || count <= 0 || count > 1000)
             {
-                string firstLine = sr.ReadLine();
-                if (!int.TryParse(firstLine, out int count) || count <= 0 || count > 1000)
+                throw new FormatException($"Количество треугольников равно \"{firstLine}\", что не является корректным целочисленным значением.");
+            }
+
+            for (int i = 0; i < count; ++i)
+            {
+                string line = sr.ReadLine();
+                if (string.IsNullOrWhiteSpace(line))
                 {
-                    throw new FormatException($"Количество треугольников равно \"{firstLine}\", что не является корректным целочисленным значением.");
+                    throw new FormatException($"Неожиданный конец файла на строке {i + 1}.");
                 }
 
-                for (int i = 0; i < count; ++i)
+                string[] coordsAsStr = line.Split(' ');
+                if (coordsAsStr.Length != expectedValuesPerLine)
                 {
-                    string line = sr.ReadLine();
-                    if (string.IsNullOrWhiteSpace(line))
-                    {
-                        throw new FormatException($"Неожиданный конец файла на строке {i + 1}.");
-                    }
+                    throw new FormatException($"{coordsAsStr.Length} значений на строке {i + 1}, ожидалось {expectedValuesPerLine}.");
+                }
 
-                    string[] coordsAsStr = line.Split(' ');
-                    if (coordsAsStr.Length != expectedValuesPerLine)
-                    {
-                        throw new FormatException($"{coordsAsStr.Length} значений на строке {i + 1}, ожидалось {expectedValuesPerLine}.");
-                    }
-
-                    if (coordsAsStr.Any(coordAsStr => !int.TryParse(coordAsStr, out int _)))
-                    {
-                        throw new FormatException($"Не целочисленное значение на строке {i + 1}.");
-                    }
+                if (coordsAsStr.Any(coordAsStr => !int.TryParse(coordAsStr, out int _)))
+                {
+                    throw new FormatException($"Не целочисленное значение на строке {i + 1}.");
                 }
             }
         }

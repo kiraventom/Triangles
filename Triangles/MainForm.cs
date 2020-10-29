@@ -51,15 +51,13 @@
 
         private void ColorBt_Click(object sender, EventArgs e)
         {
-            using (var cd = new ColorDialog() { Color = this.ColorBt.BackColor, AnyColor = true, FullOpen = true })
+            using var cd = new ColorDialog() { Color = this.ColorBt.BackColor, AnyColor = true, FullOpen = true };
+            if (cd.ShowDialog() != DialogResult.OK)
             {
-                if (cd.ShowDialog() != DialogResult.OK)
-                {
-                    return;
-                }
-
-                this.ColorBt.BackColor = cd.Color;
+                return;
             }
+
+            this.ColorBt.BackColor = cd.Color;
         }
 
         private void ColorBt_BackColorChanged(object sender, EventArgs e)
